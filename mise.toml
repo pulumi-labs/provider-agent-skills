@@ -1,0 +1,32 @@
+min_version = "2025.1.0"
+
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64", "macos-arm64", "macos-x64"]
+
+[tools]
+apm = "0.26.0"
+python = "3.13.14"
+uv = "0.11.29"
+"pipx:skills-ref" = "0.1.1"
+shellcheck = "0.11.0"
+
+[tasks."lint:shell"]
+description = "Lint repository shell scripts"
+run = "shellcheck scripts/*.sh"
+
+[tasks."lint:skills"]
+description = "Validate skills against the Agent Skills specification"
+run = "scripts/lint-skills.sh"
+
+[tasks."check:repository"]
+description = "Check repository-specific package and portability policies"
+run = "uv run --script scripts/check-repository.py"
+
+[tasks."test:install"]
+description = "Install each package into a clean APM consumer and audit it"
+run = "scripts/test-install.sh"
+
+[tasks.validate]
+description = "Run all repository validation"
+depends = ["lint:shell", "lint:skills", "check:repository", "test:install"]

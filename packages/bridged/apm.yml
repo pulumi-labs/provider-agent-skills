@@ -1,0 +1,15 @@
+name: pulumi-bridged-provider
+version: "0.1.0"
+description: Investigation and maintenance skills for bridged Pulumi providers
+author: Pulumi Provider Team
+license: Apache-2.0
+repository: https://github.com/pulumi-labs/provider-agent-skills
+type: skill
+includes: auto
+
+dependencies:
+  apm:
+    - path: ../core
+    - git: https://github.com/pulumi/agent-skills.git
+      path: package-maintenance
+      ref: main

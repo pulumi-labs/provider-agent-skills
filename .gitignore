@@ -1,0 +1,5 @@
+**/apm_modules/
+**/build/
+**/__pycache__/
+*.pyc
+.DS_Store

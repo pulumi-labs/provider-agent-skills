@@ -1,0 +1,8 @@
+bridge-parity-investigation
+investigate-converted-provider-docs
+pulumi-rpc-lifecycle-investigation
+pulumi-upgrade-provider
+stage-pulumi-provider-repro
+stage-terraform-provider-repro
+triage-provider-issue
+upstream-patches
