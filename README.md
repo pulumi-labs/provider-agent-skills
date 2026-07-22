@@ -15,48 +15,98 @@ The bridged package also depends on the `package-maintenance` skill bundle from 
 
 ## Install With APM
 
+Use an immutable release tag and APM's string dependency form so Renovate can discover and update the package reference.
+
 A bridged provider can declare:
 
 ```yaml
 name: my-provider-agent-context
 version: "1.0.0"
+
 targets:
-  - opencode
   - codex
   - claude
+  - opencode
 
 dependencies:
   apm:
-    - git: https://github.com/pulumi-labs/provider-agent-skills.git
-      path: packages/bridged
-      ref: v0.1.0
+    - pulumi-labs/provider-agent-skills/packages/bridged#v0.1.0
 ```
 
 A native or component provider can install the family-neutral package:
 
 ```yaml
+targets:
+  - codex
+  - claude
+  - opencode
+
 dependencies:
   apm:
-    - git: https://github.com/pulumi-labs/provider-agent-skills.git
-      path: packages/core
-      ref: v0.1.0
+    - pulumi-labs/provider-agent-skills/packages/core#v0.1.0
 ```
 
-Then run:
+Keep the targets explicit: a clean checkout has no generated target directories for APM to auto-detect. Then run:
 
 ```bash
 apm install
 ```
 
-Commit the consumer repository's:
+Commit `apm.yml` and `apm.lock.yaml`. Treat the installed shared skills and package store as generated output:
 
-- `apm.yml`
-- `apm.lock.yaml`
-- generated target context such as `.agents/`, `.opencode/`, `.codex/`, or `.claude/`
+```gitignore
+apm_modules/
+.agents/skills/*
 
-Do not commit `apm_modules/`.
+# Explicitly track each repository-owned skill.
+!.agents/skills/my-local-skill/
+```
 
-Use an immutable release tag or commit in `ref`. The lockfile records the resolved commit and content hashes, while the declared ref controls intentional updates.
+Do not commit `apm_modules/` or installed shared skill files. A broad skills ignore requires an exception for every repository-owned skill so that Git does not hide local work.
+
+The lockfile records the resolved repository commits and deployed-file content hashes. To adopt APM in a repository that already vendors a shared skill, remove its tracked `.claude/skills/<name>` and `.agents/skills/<name>` copies in the same change; otherwise the old files can collide with or duplicate the APM deployment.
+
+### Install Through mise
+
+Provider repositories can pin APM and model the package store and shared deployment directory as mise dependency outputs:
+
+```toml
+[settings]
+experimental = true
+
+[tools]
+"pipx:apm-cli" = "0.26.0"
+
+[deps.agent-skills]
+sources = ["apm.yml", "apm.lock.yaml"]
+outputs = [
+  "apm_modules/",
+  ".agents/skills/",
+]
+run = "apm install --frozen"
+```
+
+`mise deps` is currently experimental. Directory outputs avoid duplicating the dynamic skill inventory: a changed manifest or lockfile makes the dependency stale and installs newly added skills. Mise checks that the directories exist, not every deployed file; force a repair after partial deletion with:
+
+```bash
+mise deps install agent-skills --force
+```
+
+Expose a standard command for developers and remote-agent bootstrap:
+
+```make
+install_agent_skills: .make/mise_install
+	mise deps install agent-skills
+.PHONY: install_agent_skills
+```
+
+Invoke this command before starting an agent. Keep it separate from ordinary workspace preparation and CI jobs that do not need agent skills.
+
+### Releases
+
+All packages currently share one version and release from a repository tag. A normal Git tag is sufficient; APM clones the repository at that tag and does not require a package-specific release asset. Update the declared `#vX.Y.Z` reference and regenerate the consumer lockfile to adopt a new release.
+
+The `v0.1.0` release has been validated from a clean remote APM 0.26 consumer: the bridged dependency resolved the tagged commit, installed all eight transitive skills, and passed `apm audit --ci --no-policy`.
 
 ## Repository Layout
 
