@@ -1,65 +1,41 @@
 ---
 name: stage-terraform-provider-repro
-description: "Stage durable Terraform-side repros for bridged-provider issues. Use when triage selects Terraform behavior as the decisive discriminator, an upstream acceptance-style repro is needed, or the user asks for a Terraform repro."
+description: Stage durable Terraform-side repros for bridged-provider issues. Use when triage selects Terraform behavior as the decisive discriminator, an upstream acceptance-style repro is needed, or the user asks for a Terraform repro.
 ---
 
 # Stage Terraform Provider Repro
 
-Stage the sharpest Terraform-side discriminator for the issue.
+Stage the sharpest Terraform-side discriminator (HCL config or upstream TF acceptance test) for a bridged-provider issue.
 
-Prefer durable upstream or repo-native artifacts over disposable local
-experiments. When a temporary config is useful as a quick check, treat it as a
-probe, not the final repro artifact.
+---
 
-Stay in the repro lane. Do not drift back into broad routing or bridge-theory
-work unless the Terraform result directly changes the question.
-Prefer `triage-provider-issue` first unless a prior pass already established
-that a Terraform repro is the next best action or the user explicitly invoked
-this skill.
+## Terraform Repro Pipeline
 
-Read `references/repro-shape.md` before editing.
+| Step | Objective | Execution Guideline |
+| :--- | :--- | :--- |
+| **1. Define Discriminator Question** | Target Question | State exact question (e.g. *"Does TF reproduce the same read failure with `-refresh=false`?"*). |
+| **2. Select Artifact Surface** | Native Surface | Prefer upstream TF acceptance tests or repo-native TF test configs over scratch temp files. |
+| **3. Preserve Semantic Flags** | Execution Mode | Preserve flags (`-refresh=false`, `terraform import`, read-after-update) explicitly. |
+| **4. Minimal Config** | Input Minimization | Keep HCL config minimal without erasing the target behavior. |
+| **5. Stage & Document** | Deliverable Stage | Stage artifact locally; list exact `terraform` CLI commands to execute. |
 
-## Workflow
+---
 
-1. State the exact question Terraform needs to answer.
-   Examples: Does Terraform reproduce the same read failure? Does the issue
-   disappear with `-refresh=false`? Is this accepted upstream behavior?
-2. Choose the strongest durable artifact available.
-   Prefer upstream acceptance tests or the closest durable Terraform repro in
-   the relevant repo.
-3. Preserve the exact discriminator.
-   If refresh semantics matter, stage that explicitly.
-4. Keep the config minimal, but not so minimal that it erases the behavior.
-5. If the relevant repro surface lives in another repository, continue there only
-   when the environment can preserve correct repository and artifact ownership.
-   Otherwise leave a repository-scoped handoff with the exact artifact required.
-6. Stage the artifact locally.
-7. Run only what is safe and available.
-8. If credentials or approvals are missing, stop with a ready-to-run artifact
-   and exact commands.
+## Discriminator Checklist
 
-## Operating Rules
+- [ ] **Upstream Harness:** If the upstream provider repository has an acceptance testing harness, use it over custom wrappers.
+- [ ] **Semantic Equivalence:** Verify the TF repro matches the exact multi-step lifecycle reported in Pulumi.
+- [ ] **Credential Fallback:** If credentials are missing, leave ready-to-run HCL/go test files and exact CLI commands.
 
-- Do not substitute a loose temp-dir config when the real next step is an
-  upstream acceptance-style repro.
-- Preserve semantic variants intentionally, including flags like
-  `-refresh=false`, import, or read-after-update behavior.
-- Treat "Terraform did not reproduce" as a meaningful result only when the
-  repro actually matches the question being asked.
-- If the upstream repo has a testing harness, use it instead of inventing a
-  new convention.
+---
 
-## Deliverable
+## Deliverable Artifact Format
 
-Leave behind:
+```markdown
+## Staged Terraform Repro Artifact
 
-- current state
-- confidence
-- what is settled
-- what is not settled
-- next best action
-- the staged Terraform repro artifact
-- the exact command matrix
-- the discriminator being tested
-- what blocked execution, if anything
-- workaround status
+- **Discriminator Question:** <Question being answered by TF execution>
+- **Staged File:** `<path/to/repro.tf>` or `<path/to/acc_test.go>`
+- **Execution Command:** `terraform apply` or `go test -run TestAcc...`
+- **Settled vs Unsettled:** <What TF execution proves vs what remains open>
+```

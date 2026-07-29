@@ -1,84 +1,47 @@
 ---
 name: investigate-converted-provider-docs
-description: "Investigate bridged-provider generated docs and converted Terraform examples. Use for incorrect casing, malformed PCL, wrong target-language output, or unclear ownership across schema generation, tfgen, the Terraform converter, the bridge, and language generators."
+description: Investigate bridged-provider generated docs and converted Terraform examples. Use for incorrect casing, malformed PCL, wrong target-language output, or unclear ownership across schema generation, tfgen, the Terraform converter, the bridge, and language generators.
 ---
 
 # Investigate Converted Provider Docs
 
-Use this skill when a bridged-provider issue involves generated docs, converted
-Terraform examples, or unexpected casing in examples.
+Triage and isolate bugs in generated docs, converted Terraform examples, casing, or PCL conversion across **`tfgen`**, **`pulumi-converter-terraform`**, **Bridge**, and **Core Language Generators**.
 
-## Pipeline
+---
 
-For bridged providers, generated docs examples usually flow through:
+## Docs Conversion Pipeline & Attribution Matrix
 
-1. `tfgen` extracts upstream Terraform markdown and HCL examples.
-2. The bridge invokes `pulumi convert --from terraform --language pcl`.
-3. `pulumi-converter-terraform` emits PCL.
-4. The bridge converts PCL to target languages with core `hcl2*` generators.
-
-Do not assign ownership from final SDK docs alone. Compare source Terraform,
-generated PCL, and target-language output.
-
-## Discriminator
-
-Create the smallest synthetic example that reproduces the suspicious shape.
-Prefer real resource tokens and property names when they are known.
-
-Run Terraform to PCL:
-
-```bash
-pulumi convert --from terraform --language pcl --out out-pcl --generate-only
+```
+[Upstream TF HCL] ──(tfgen)──> [PCL Intermediate] ──(hcl2 generators)──> [Target SDK Docs (TS/Py/Go)]
 ```
 
-Then run known-good PCL to representative languages:
+| Pipeline Step | Conversion Command | Failure Symptom & Suspected Layer |
+| :--- | :--- | :--- |
+| **1. TF $\rightarrow$ PCL** | `pulumi convert --from terraform --language pcl --out out-pcl --generate-only` | Source TF correct, PCL wrong/malformed $\rightarrow$ Suspect `pulumi-converter-terraform` or bridge mapping. |
+| **2. PCL $\rightarrow$ TS/Py/Go** | `pulumi convert --from pcl --language typescript --out out-ts --generate-only` | PCL correct, target language wrong $\rightarrow$ Suspect core `hcl2*` language generator. |
+| **3. Schema Binding** | *(PCL binding fails due to missing schema)* | Missing schema/mappings $\rightarrow$ Suspect bridge/provider schema generation. |
 
-```bash
-pulumi convert --from pcl --language typescript --out out-ts --generate-only
-pulumi convert --from pcl --language python --out out-python --generate-only
-pulumi convert --from pcl --language go --out out-go --generate-only
+---
+
+## Casing & Any-Type Key Routing Rules
+
+| Data Shape in Pulumi Schema | Casing Routing Rule |
+| :--- | :--- |
+| **Typed Pulumi Object Property** | Convert HCL keys to camelCase / Pulumi property names. |
+| **Map Type** | Preserve exact key casing. |
+| **`Any`, Dynamic, or JSON-like** | **Preserve exact key casing.** Object keys inside `Any`/opaque shapes are data keys; recasing breaks provider runtime behavior. |
+
+---
+
+## Deliverable Artifact Format
+
+```markdown
+## Converted Docs Investigation
+
+- **Source HCL:** `<Minimal TF HCL snippet>`
+- **Generated PCL:** `<Generated PCL snippet>`
+- **Target Language Output:** `<TS / Python / Go output snippet>`
+- **Pulumi Schema Type:** `<Typed Object / Map / Any>`
+- **Identified Failure Layer:** `<converter-terraform / hcl2 generator / bridge schema / tfgen>`
+- **User Workaround:** `<Available mitigation for docs/examples>`
 ```
-
-Interpretation:
-
-- Source Terraform correct, PCL wrong: suspect `pulumi-converter-terraform` or
-  mapping information passed to it.
-- PCL correct, target language wrong: suspect core `hcl2*` language generator.
-- PCL cannot bind because schema/mappings are absent: report that limitation
-  and use checked-in generated docs or `tfgen` output as supporting evidence.
-- Pulumi schema has the wrong shape before conversion: suspect provider or
-  bridge schema generation.
-
-## Any And Dynamic Values
-
-Object keys inside `Any`, dynamic, JSON-like, or otherwise opaque values should
-be treated as data keys unless explicit provider metadata says otherwise.
-Recasing those keys can change provider behavior.
-
-Default routing rule:
-
-- Typed Pulumi object property: convert keys to Pulumi names.
-- Map: preserve keys.
-- `Any`, dynamic, JSON-like, or unknown shape: preserve keys.
-
-If an `Any` value appears to require Pulumi-shaped nested casing, do not infer
-that from examples alone. Call out that the converter needs explicit metadata
-or a targeted override to do that safely.
-
-## Reporting Shape
-
-For a converter issue, include:
-
-- source Terraform HCL
-- generated PCL
-- one target-language output if useful
-- the relevant Pulumi schema shape (`Any`, map, typed object, or unknown)
-- why the observed key spelling is semantically meaningful
-
-For the provider issue, include:
-
-- user-visible workaround
-- link to the upstream converter/core/bridge issue
-- whether local provider action remains
-- labels that reflect the provider-side state, such as docs/usability plus an
-  awaiting label when the actionable fix moved elsewhere

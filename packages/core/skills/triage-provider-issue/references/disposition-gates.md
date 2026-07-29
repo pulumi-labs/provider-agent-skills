@@ -1,111 +1,23 @@
 # Disposition Gates
 
-Use these gates before making a strong routing or duplicate claim.
+Strict gate criteria required before making a strong routing disposition or closing issue claim.
 
-## Contents
+---
 
-- [`awaiting-upstream`](#awaiting-upstream)
-- [`awaiting/bridge`](#awaitingbridge)
-- [`duplicate`](#duplicate)
-- [`awaiting-feedback`](#awaiting-feedback)
-- [`local-fix`](#local-fix)
-- [`fixed by upgrade` / version-boundary cases](#fixed-by-upgrade--version-boundary-cases)
-- [Hypothesis Discipline](#hypothesis-discipline)
+## Disposition Gate Matrix
 
-## `awaiting-upstream`
+| Label / Disposition | Required Criteria (MUST be True) | Negative Criteria (DO NOT Use If...) |
+| :--- | :--- | :--- |
+| **`awaiting-upstream`** | • Matching upstream issue/PR exists for same failure mode & action, **OR**<br>• Terraform reproduces failure strongly. | • Issue is only in same general area.<br>• Upstream issue is merely suggestive.<br>• TF parity is still unknown. |
+| **`awaiting/bridge`** | • Matching bridge issue exists, **OR**<br>• Pulumi & TF behavior established, gap is bridge-owned. | • Bridge is only a plausible theory.<br>• TF parity is still unknown.<br>• Bridge repro artifact has not been staged. |
+| **`duplicate`** | • Covers **same** user-facing failure mode, **AND**<br>• Requires **same** next maintainer action. | • Issue only touches same subsystem or general area.<br>*(Label as `same-family` or `umbrella issue` instead)*. |
+| **`awaiting-feedback`** | • Explanation is outside provider code (env/version mismatch).<br>• Repro depends on missing reporter stack details. | • Issue is simply annoying or hard to reproduce.<br>*(Stage maintainer repro instead)*. |
+| **`local-fix`** | • Repo-local evidence settles ownership boundary.<br>• Opposite upstream result would **not** overturn routing. | • Ownership boundary is still unconfirmed. |
+| **`fixed by upgrade`** | • Issue explained by fix/feature landed in later release. | • Open bug remains in `HEAD`.<br>*(Must cite exact version boundary)*. |
 
-Use only when at least one of these is true:
+---
 
-- there is an existing upstream issue or fix that matches the same
-  user-facing failure mode and maintainer next action, or
-- Terraform reproduces strongly enough that the routing would not change if
-  Pulumi-specific details were refined later
+## Hypothesis Discipline Rules
 
-Do not use it when:
-
-- the issue is only in the same general area as an upstream issue
-- the upstream issue is merely suggestive
-- Terraform parity is still unknown and would change your recommendation
-
-## `awaiting/bridge`
-
-Use only when at least one of these is true:
-
-- there is an existing bridge issue that matches the same failure mode, or
-- Pulumi behavior is established, Terraform behavior is established, and the
-  remaining gap is bridge-owned enough that `bridge-parity-investigation` is
-  the right next step when that specialist is installed
-
-Do not use it when:
-
-- the bridge is only a plausible layer
-- Terraform parity is still unknown
-- you would still need to create the first bridge repro artifact before saying
-  the issue is bridge-owned
-
-## `duplicate`
-
-Use only when both of these are true:
-
-- the existing issue covers the same user-facing failure mode, not just the
-  same subsystem or root-area
-- the next maintainer action is the same
-
-If the issue is merely related, say so explicitly:
-
-- same-family issue
-- possible umbrella/root issue
-- historical background
-
-Do not collapse "same general area" into "duplicate."
-
-## `awaiting-feedback`
-
-Use when the strongest current explanation is outside the provider's current
-bug surface and the maintainer needs reporter details to proceed.
-
-Typical cases:
-
-- version-resolution or environment mismatch
-- repro depends on missing stack/state details
-- current `HEAD` does not reproduce and the missing discriminator lives with
-  the reporter
-
-Do not use it just because the issue is annoying to reproduce. If maintainer
-repro is the sharpest next step, stage the repro artifact instead.
-
-## `local-fix`
-
-Use when repo-local evidence already settles the likely ownership boundary well
-enough that the next maintainer action can happen in the current repo.
-
-This does not require certainty about the exact final patch, but it does
-require that the opposite upstream/parity result would not overturn the routing
-recommendation.
-
-## `fixed by upgrade` / version-boundary cases
-
-Use when the issue is best explained by a capability or fix that already landed
-in a later released version.
-
-The report should still include:
-
-- the exact version boundary
-- why the current version explains the report
-- why this is not an open current bug in `HEAD`
-
-## Hypothesis Discipline
-
-If your best explanation is still a leading theory, say so.
-
-Good examples:
-
-- "likely but unconfirmed root cause"
-- "related upstream fix, exact applicability unverified"
-- "same family as `#1234`, not yet justified as duplicate"
-
-Bad examples:
-
-- presenting a plausible mechanism as if the issue text or repro already proved
-  it
-- naming a strong routing label and then quietly adding caveats later
+- **Label Unproven Claims Plainly:** Use explicit labels (*"likely but unconfirmed"*, *"related upstream fix, applicability unverified"*).
+- **No False Decisiveness:** Never present a plausible static code mechanism as if the issue text or repro already proved it.

@@ -1,30 +1,22 @@
 # Pulumi Repro Shape
 
-Use this reference to keep Pulumi repro work durable and narrow.
+Reference rules for staging durable, minimal Pulumi provider repro artifacts.
 
-## Preserve
+---
 
-- the exact lifecycle path
-- the smallest input shape that still matters
-- the exact failure mode
-- any required config, provider version, or local binary wiring
+## Repro Principles Matrix
 
-## Prefer
+| Category | Guideline |
+| :--- | :--- |
+| **PRESERVE** | Exact lifecycle path, smallest input shape, failure mode, provider version, & binary overrides. |
+| **PREFER** | Repo-native example programs (`examples/`), provider test harness over ad hoc scaffolding. |
+| **AVOID** | One-off temp-dir repros, simplifying away bug-causing lifecycle transitions, broad snapshot assertions. |
 
-- provider repo example programs
-- provider harness tests
-- focused existing test surfaces over new ad hoc scaffolding
+---
 
-## Avoid
+## Blocked Execution Fallback
 
-- temp-dir repros as the main deliverable
-- simplifying away the lifecycle transition that causes the bug
-- broad snapshot assertions when one concrete failure proves the point
-
-## If Execution Is Blocked
-
-Stage the repro anyway and report:
-
-- the command to run
-- the required credentials or environment
-- the expected signal if the issue reproduces
+If credentials/environment block test execution, stage the repro files anyway and report:
+1. Exact command to run (`go test ...` or `pulumi up`).
+2. Required credentials or environment variables.
+3. Expected failure signal when issue reproduces.

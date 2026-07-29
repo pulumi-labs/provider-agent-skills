@@ -1,48 +1,45 @@
-# Confidence And Artifact Rules
+# Confidence & Artifact Rules
 
-Use this reference to keep triage grounded when the issue is ambiguous.
+Grounded rules for confidence estimation, counterfactual checks, and triage artifact structures.
 
-## Confidence Rules
+---
 
-- `>= 90%`: a provisional disposition is useful.
-- `60-89%`: the report should answer "what next action gets us to certainty?"
-- `< 60%`: do not name a leading hypothesis just to sound decisive.
+## Confidence Thresholds
 
-Do not let a detailed issue report or a clever static explanation inflate
-confidence.
+| Confidence Level | Strategy & Posture |
+| :--- | :--- |
+| **$\ge$ 90%** | Provisional disposition is supported by evidence. |
+| **60% – 89%** | Focus on: *"What exact action gets us to certainty?"* |
+| **$<$ 60%** | Avoid leading hypotheses. Focus purely on evidence acquisition. |
 
-## Counterfactual Check
+---
 
-Run this test before you route strongly:
+## Counterfactual Discriminator Check
 
-`Would the opposite repro or parity result change my recommendation?`
+Before declaring a strong routing decision, perform this test:
 
-If yes, the recommendation is not settled and the repro is not optional.
+> **Test:** *"Would the opposite repro or parity result change my recommendation?"*  
+> - If **YES** $\rightarrow$ Recommendation is **unsettled**. Staging a repro is mandatory before routing.
 
-Do not let a detailed static explanation bypass this check. If the opposite
-result would change your routing, your routing is not settled yet.
+---
 
-## Standard Artifact
+## Standard Triage Artifact Structure
 
-Leave behind this structure:
+Every triage pass must leave behind this compact structure:
 
-1. Current state
-2. Confidence
-3. Settled evidence
-4. Unsettled question
-5. Next best action
-6. Artifacts prepared
-7. Blocked execution and required access
-8. Workaround status
-9. Closest related issues and why they are duplicate, same-family, or only
-   background
+```markdown
+1. Current State
+2. Confidence Level (>=90% / 60-89% / <60%)
+3. Settled Evidence
+4. Unsettled Questions
+5. Next Best Action
+6. Prepared Artifacts
+7. Blocked Execution & Required Access
+8. Workaround Status
+9. Related Issues (Duplicate vs Same-Family vs Background)
+```
 
-Keep each section short and evidence-backed.
-
-When the mechanism is not yet fully proven, label it explicitly:
-
-- proven by evidence
-- likely but unconfirmed
-- related but exact applicability unverified
-
-Do not use a stronger label later in the report than the evidence justifies.
+### Mechanism Evidence Labels
+- `proven by evidence`
+- `likely but unconfirmed`
+- `related but applicability unverified`
