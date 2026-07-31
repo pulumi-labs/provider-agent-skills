@@ -6,12 +6,12 @@ Routing guide for identifying initial resource ownership boundaries across Pulum
 
 | Provider Family | Subsystem Ownership Boundaries | Key Discriminator Strategy |
 | :--- | :--- | :--- |
-| **Bridged Provider** | • Pulumi engine lifecycle & checkpoints<br>• Pulumi-to-TF bridge translation (`pkg/bridge`)<br>• Provider metadata, overlays, & patches<br>• Upstream Terraform provider schema/runtime<br>• `tfgen` & docs converter tools | **Terraform Parity Test:** Compare behavior against TF equivalent. If TF succeeds & Pulumi fails $\rightarrow$ Bridge boundary. |
-| **Native Provider** | • Pulumi engine lifecycle<br>• Native provider runtime (`pulumi-aws-native`)<br>• Schema generation & OpenAPI/CloudControl specs<br>• Cloud API / SDK runtime behavior<br>• Resource ID, import, refresh, & state normalization | **Cloud Spec & Schema Check:** Do **not** use TF parity. Check generated schema vs underlying Cloud API spec. |
+| **Bridged Provider** | • Pulumi engine lifecycle & checkpoints<br>• Pulumi-to-TF bridge translation (`pkg/bridge`)<br>• Provider metadata, overlays, & patches<br>• Upstream Terraform provider schema/runtime<br>• `tfgen` & docs converter tools | **Conditional TF Parity vs Direct Source:** Terraform parity *can* be decisive when appropriate, but **direct source code evidence (Go source, AST, parser logic, schema metadata) can settle ownership directly without requiring a Terraform repro.** |
+| **Native Provider** | • Pulumi engine lifecycle<br>• Native provider runtime (`pulumi-aws-native`)<br>• Schema generation & OpenAPI/CloudControl specs<br>• Cloud API / SDK runtime behavior<br>• Resource ID, import, refresh, & state normalization | **Cloud Spec & Schema Check:** Do **not** use TF parity. Check generated schema vs underlying Cloud API spec or native runtime code. |
 | **Component Provider** | • Component construct logic (`pulumi-awsx`)<br>• Parent & child resource options propagation<br>• Language host vs provider execution<br>• Underlying resource provider behavior | **Parent-Child Dataflow:** Preserve resource options & options propagation when staging repros. |
 
 ---
 
-## Mixed / Ambiguous Repositories
+## Direct Source Evidence Principle
 
-For repos containing mixed implementation styles, probe the exact failing resource path using `references/provider-families.md` rules rather than assigning a single family to the entire repo by name.
+If direct source code inspection (log traces, Go code, parser logic, AST, or schema metadata) identifies the bug boundary, **settle ownership directly**. Do not defer a source-supported diagnosis or demand a Terraform repro when repository evidence is already sufficient.

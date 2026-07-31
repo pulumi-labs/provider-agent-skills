@@ -5,7 +5,9 @@ description: Stage durable Terraform-side repros for bridged-provider issues. Us
 
 # Stage Terraform Provider Repro
 
-Stage the sharpest Terraform-side discriminator (HCL config or upstream TF acceptance test) for a bridged-provider issue.
+Stage the sharpest Terraform-side discriminator (HCL config or upstream TF acceptance test) for a bridged-provider issue (see [`references/repro-shape.md`](references/repro-shape.md)).
+
+> ℹ️ **Reference:** Read [`references/repro-shape.md`](references/repro-shape.md) before editing to ensure repro principles and fallback shapes match repository requirements.
 
 ---
 
@@ -25,7 +27,7 @@ Stage the sharpest Terraform-side discriminator (HCL config or upstream TF accep
 
 - [ ] **Upstream Harness:** If the upstream provider repository has an acceptance testing harness, use it over custom wrappers.
 - [ ] **Semantic Equivalence:** Verify the TF repro matches the exact multi-step lifecycle reported in Pulumi.
-- [ ] **Credential Fallback:** If credentials are missing, leave ready-to-run HCL/go test files and exact CLI commands.
+- [ ] **Credential Fallback:** If credentials are missing, leave ready-to-run HCL/Go test files and exact CLI commands.
 
 ---
 

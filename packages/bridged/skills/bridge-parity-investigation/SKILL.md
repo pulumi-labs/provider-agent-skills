@@ -5,9 +5,9 @@ description: Investigate established Pulumi-vs-Terraform parity gaps with bridge
 
 # Bridge Parity Investigation
 
-Investigate established parity gaps where **Pulumi fails while Terraform succeeds**, isolating the root cause to the bridge translation layer.
+Investigate established parity gaps where **Pulumi fails while Terraform succeeds**, isolating the root cause to the bridge translation layer (see [`references/cross-test-playbook.md`](references/cross-test-playbook.md)).
 
-> ⚠️ **Precondition:** Use this skill **only** after parity status is established (Pulumi behavior known, Terraform behavior known). Do not use for generic provider tests.
+> ⚠️ **Precondition:** Use this skill **only** after parity status is established (Pulumi behavior known, Terraform behavior known). Read [`references/cross-test-playbook.md`](references/cross-test-playbook.md) before editing.
 
 ---
 

@@ -5,29 +5,41 @@ description: Triage Pulumi provider issues from evidence to disposition or next 
 
 # Triage Provider Issue
 
-Triage Pulumi provider issues as an evidence-driven routing problem. Determine settled vs. unsettled facts, estimate confidence, and select the optimal specialist or next action.
+Triage Pulumi provider issues as an evidence-driven routing problem. Identify the implementation boundary, gather direct source code evidence for root cause, determine settled vs. unsettled facts, estimate confidence, recommend repository labels, and define concrete maintainer steps.
 
-> ⚠️ **Core Rule:** Do not post GitHub comments, apply labels, or close issues directly. Produce a bounded triage artifact for maintainers or automated integrations.
+> ⚠️ **Core Rule:** Do not post GitHub comments, apply labels, or close issues directly. Produce a bounded triage artifact containing root cause evidence, recommended labels, and concrete maintainer steps.
 
 ---
 
-## Confidence Fork & Decision Table
+## Required Reference Files (MUST Read During Triage)
 
-Estimate confidence after your first evidence pass:
+You **MUST** read the appropriate reference document before finalizing dispositions, assigning labels, or switching specialists:
 
-| Confidence Level | Routing Posture | Actionable Strategy |
+| Reference File | When to Read | Key Purpose & Output |
 | :--- | :--- | :--- |
-| **$\ge$ 90% (Settled)** | Provisional Disposition | State provisional disposition, explain strongest evidence, name ruled-out alternatives, and define maintainer next step. |
-| **60% – 89% (Uncertain)** | Unresolved Question | Center on the unresolved question. Stage the sharper discriminator (repro/parity test) before making a strong ownership call. |
-| **$<$ 60% (Low)** | Evidence Acquisition | Avoid leading hypotheses. Focus purely on gathering logs, layout probes, or search evidence. |
+| **[`references/disposition-gates.md`](references/disposition-gates.md)** | **Before recommending labels or final disposition** | Provides exact gate criteria for `awaiting-upstream`, `awaiting/bridge`, `duplicate`, `awaiting-feedback`, `local-fix`, and `fixed by upgrade`. |
+| **[`references/provider-families.md`](references/provider-families.md)** | **During initial resource probe** | Defines subsystem boundaries. Direct source evidence can settle ownership without another repro. TF parity is conditional, not mandatory. |
+| **[`references/helper-switches.md`](references/helper-switches.md)** | **When selecting a specialist skill** | Defines explicit trigger criteria for switching to `stage-pulumi-provider-repro`, `bridge-parity-investigation`, `pulumi-rpc-lifecycle-investigation`, etc. |
+| **[`references/confidence-and-artifacts.md`](references/confidence-and-artifacts.md)** | **When calculating confidence score** | Enforces counterfactual discriminator test (`>=90%`, `60-89%`, `<60%`). |
+| **[`references/workaround-investigation.md`](references/workaround-investigation.md)** | **When user needs temporary mitigation** | Defines 5-tier workaround search hierarchy & validation levels. |
 
-> **Discriminator Test:** Ask: *"Would the opposite repro, parity result, or ownership observation change my recommendation?"* If yes, routing is **not** settled.
+---
+
+## Triage Workflow & Evidence Rules
+
+1. **Probe Repository Layout & Identify Boundary:** Probe effective modules, resource implementation, and provider family (see [`references/provider-families.md`](references/provider-families.md)).
+2. **Gather Direct Source Evidence:** Inspect Go code, stack traces, AST parser logic, logs, or schema metadata first. **Direct source evidence can settle ownership directly without demanding another repro or Terraform test.**
+3. **Establish Root Cause & Confidence:** Estimate confidence after evidence pass:
+   - **$\ge$ 90% (Settled):** State provisional disposition, explain strongest root-cause evidence, name ruled-out alternatives, recommend repository labels, and define concrete maintainer next step.
+   - **60% – 89% (Uncertain):** Center on the unresolved question. Stage the sharper discriminator (repro/parity test) before making a strong ownership call.
+   - **$<$ 60% (Low):** Avoid leading hypotheses. Focus purely on gathering logs, layout probes, or search evidence.
+4. **Discriminator Test:** Ask: *"Would the opposite repro, parity result, or ownership observation change my recommendation?"* If yes, routing is not settled.
 
 ---
 
 ## Specialist Capability Routing Matrix
 
-Select a specialist explicitly when routing is not settled or when a specific evidence artifact is required:
+Select a specialist explicitly when routing is not settled or when a specific evidence artifact is required (see [`references/helper-switches.md`](references/helper-switches.md)):
 
 | Specialist Skill | When to Select | Primary Deliverable |
 | :--- | :--- | :--- |
@@ -55,17 +67,19 @@ gh search prs --repo owner/repo 'search terms' --json number,title,state,url,clo
 
 ## Default Triage Output Template
 
-Always output this compact triage artifact:
+Always output this compact triage artifact, prioritizing **Root Cause** and **Concrete Next Step**:
 
 ```markdown
 ## Triage Summary: Issue #<number>
 
 - **Current State:** <Brief summary>
+- **Likely Root Cause / Implementation Boundary:** <Direct source/log evidence supporting root cause and owning subsystem>
+- **Concrete Next Step:** <Primary actionable maintainer step>
 - **Confidence:** < >=90% / 60-89% / <60% >
+- **Candidate Labels:** <Recommended disposition labels: awaiting-upstream, awaiting/bridge, duplicate, awaiting-feedback, local-fix, fixed by upgrade>
 - **Settled Facts:** <What is proven by evidence>
 - **Unsettled Questions:** <What remains unconfirmed>
 - **Selected Specialist:** <Specialist skill name or None>
-- **Next Best Action:** <Concrete maintainer step>
 - **Workaround Status:** <Available mitigation or None>
 - **Related Issues:** <Duplicates, same-family, or background issues>
 ```

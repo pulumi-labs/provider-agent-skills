@@ -5,7 +5,9 @@ description: Stage durable Pulumi-side repros for provider issues. Use when tria
 
 # Stage Pulumi Provider Repro
 
-Stage the smallest durable Pulumi-side repro harness that captures the issue across lifecycle operations.
+Stage the smallest durable Pulumi-side repro harness that captures the issue across lifecycle operations (see [`references/repro-shape.md`](references/repro-shape.md)).
+
+> ℹ️ **Reference:** Read [`references/repro-shape.md`](references/repro-shape.md) before editing to ensure repro principles and fallback shapes match repository requirements.
 
 ---
 
