@@ -1,6 +1,6 @@
-# Confidence And Artifact Rules
+# Confidence And Triage Artifact Rules
 
-Confidence estimation, the counterfactual check, and the shared artifact spine every skill in this family leaves behind.
+Confidence estimation, the counterfactual check, and the handoff left by the triage skill.
 
 ## Confidence Thresholds
 
@@ -20,9 +20,9 @@ Run this test before routing strongly:
 
 If yes, the recommendation is not settled and the repro is not optional. A detailed static explanation does not bypass this check.
 
-## Shared Artifact Spine
+## Triage Handoff
 
-Every pass in this skill family leaves behind these fields. Individual skills add their own artifact-specific fields on top; none of them drop a spine field.
+A triage pass leaves behind these fields. Specialist skills use task-specific outputs and should not repeat unrelated triage fields.
 
 | Field | Contents |
 | :--- | :--- |

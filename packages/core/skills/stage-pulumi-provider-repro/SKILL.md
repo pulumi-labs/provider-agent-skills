@@ -11,8 +11,6 @@ Prefer repo-native examples and tests over temporary scratch work. Use ad hoc lo
 
 Stay in the repro lane. Do not restart ownership analysis unless the repro result directly contradicts the current working theory. Prefer `triage-provider-issue` first unless a prior pass already established that a Pulumi repro is the next best action, or the user invoked this skill directly.
 
-Read [`references/repro-shape.md`](references/repro-shape.md) before editing.
-
 ## Goals
 
 - Preserve the user-visible failure.
@@ -37,6 +35,7 @@ Read [`references/repro-shape.md`](references/repro-shape.md) before editing.
 - Preserve version constraints or local provider wiring when the report depends on them.
 - Do not silently swap in `HEAD` semantics if the issue depends on older versions.
 - If you cannot execute the best path, do not invent a weaker one and present it as equivalent.
+- Prefer one concrete failure assertion over broad snapshots.
 - Cite staged files and tests with repository-relative `path/to/file.go:45` references unless the hosting application provides a stable source-link format. Do not emit absolute sandbox paths or `file://` URIs.
 
 ## Deliverable
@@ -44,14 +43,14 @@ Read [`references/repro-shape.md`](references/repro-shape.md) before editing.
 ```markdown
 ## Staged Pulumi Repro
 
-- **Current State:** <what is staged and whether it ran>
-- **Target Behavior:** <lifecycle path the repro proves>
-- **Confidence:** <>=90% / 60-89% / <60%>
-- **Settled Facts:** <what the repro proves>
-- **Unsettled Questions:** <the question this repro should answer next>
-- **Next Best Action:** <concrete next step>
-- **Staged File:** `<path/to/repro_test.go>`
+- **Target Behavior:** <lifecycle path under test>
+- **Staged Files:** <repository-relative paths>
 - **Command Matrix:** <exact `go test` or `pulumi` commands>
+- **Execution Status:** <not run / completed / blocked / failed before the discriminator>
+- **Observed Result:** <reproduced / did not reproduce / inconclusive / None if not reached>
+- **Remaining Question:** <what execution has not answered>
+- **Next Best Action:** <concrete next step>
 - **Blocked Execution & Required Access:** <what could not run and what it needs, or None>
-- **Workaround Status:** <mitigation and validation level, or None>
 ```
+
+Do not infer behavior from a staged but unexecuted artifact. When execution is blocked, state the expected reproduction signal separately from observed results.

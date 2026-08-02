@@ -11,8 +11,6 @@ Prefer durable upstream or repo-native artifacts over disposable local experimen
 
 Stay in the repro lane. Do not drift back into broad routing or bridge-theory work unless the Terraform result directly changes the question. Prefer `triage-provider-issue` first unless a prior pass already established that a Terraform repro is the next best action, or the user invoked this skill directly.
 
-Read [`references/repro-shape.md`](references/repro-shape.md) before editing.
-
 ## Workflow
 
 1. **State the exact question Terraform needs to answer.** For example: does Terraform reproduce the same read failure? Does the issue disappear with `-refresh=false`? Is this accepted upstream behavior?
@@ -30,21 +28,22 @@ Read [`references/repro-shape.md`](references/repro-shape.md) before editing.
 - Treat "Terraform did not reproduce" as a meaningful result only when the repro actually matches the question being asked. Do not make vague "Terraform works" claims without stating what was exercised.
 - If the upstream repo has a testing harness, use it instead of inventing a new convention.
 - Verify the Terraform repro matches the exact multi-step lifecycle reported in Pulumi.
+- Prefer one concrete failure assertion over broad snapshots.
 
 ## Deliverable
 
 ```markdown
 ## Staged Terraform Repro
 
-- **Current State:** <what is staged and whether it ran>
-- **Discriminator Question:** <what TF execution answers>
-- **Confidence:** <>=90% / 60-89% / <60%>
-- **Settled Facts:** <what TF execution proves>
-- **Unsettled Questions:** <what remains open>
-- **Next Best Action:** <concrete next step>
-- **Staged File:** `<path/to/repro.tf>` or `<path/to/acc_test.go>`
-- **Command Matrix:** `terraform apply` / `go test -run TestAcc...`
+- **Discriminator Question:** <what Terraform execution answers>
+- **Staged Files:** <repository-relative paths>
+- **Command Matrix:** <exact `terraform` or `go test` commands>
+- **Execution Status:** <not run / completed / blocked / failed before the discriminator>
+- **Observed Result:** <reproduced / did not reproduce / inconclusive / None if not reached>
 - **Result That Would Change Routing:** <the counterfactual outcome>
+- **Remaining Question:** <what execution has not answered>
+- **Next Best Action:** <concrete next step>
 - **Blocked Execution & Required Access:** <what could not run and what it needs, or None>
-- **Workaround Status:** <mitigation and validation level, or None>
 ```
+
+Do not infer Terraform behavior from a staged but unexecuted artifact. When execution is blocked, state the expected discriminator signal separately from observed results.

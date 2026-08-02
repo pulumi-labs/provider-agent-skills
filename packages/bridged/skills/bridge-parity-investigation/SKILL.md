@@ -5,52 +5,39 @@ description: Investigate established Pulumi-vs-Terraform parity gaps with bridge
 
 # Bridge Parity Investigation
 
-Turn an established parity gap into the smallest useful bridge cross-test, and narrow the failing boundary enough that the next pass can reason about root cause or workaround work.
+Turn an established parity gap into the smallest useful bridge cross-test and narrow the failing boundary.
 
-**Precondition:** use this skill only when the issue is already understood as a real parity gap. Pulumi has the problem, Terraform does not, and the bridge is the next evidence surface. If parity is not established, stop and switch back to the appropriate repro skill. Prefer `triage-provider-issue` first unless a prior pass already established the parity gap and selected this helper, or the user invoked this skill directly.
+This skill is cross-test-only. Prefer `triage-provider-issue` first unless a prior pass selected bridge parity work or the user explicitly requested a cross-test.
 
-This skill is cross-test-only. Do not spend time debating provider-only tests, generic `pkg/tests`, or other harnesses here.
-
-Stay in the bridge lane. Do not restart broad issue triage unless the cross-test evidence contradicts the established parity story.
-
-Read [`references/cross-test-playbook.md`](references/cross-test-playbook.md) before editing.
+Read [`references/cross-test-playbook.md`](references/cross-test-playbook.md) before editing. Its entry gate is mandatory; if the gate fails, switch to the appropriate repro skill.
 
 ## Workflow
 
-1. **Restate the parity gap in one line.** For example: "Pulumi update+read fails, Terraform equivalent path succeeds."
-2. **Identify the lifecycle path that must be preserved.** Update then read, refresh, import, diff.
-3. **Resolve repository ownership.** If the work belongs in the bridge repository, continue there only when the environment can preserve correct repository and artifact ownership. Otherwise leave a bridge-repository handoff naming the exact cross-test required.
-4. **Build or refine the bridge cross-test** around that path.
-5. **Preserve the dataflow that matters,** not just the final values.
-6. **Instrument the failing boundary narrowly.**
-7. **Run the targeted cross-test.**
-8. **Record what the test proves and what it still does not prove.**
+1. **Resolve repository ownership.** If the work belongs in the bridge repository, continue there only when the environment can preserve correct repository and artifact ownership. Otherwise leave a bridge-repository handoff naming the exact cross-test required.
+2. **Build or refine the cross-test** around the established lifecycle and dataflow.
+3. **Instrument the first divergence narrowly and run the targeted test.**
+4. **Record the observed result, narrowed boundary, and remaining question.**
 
 ## Operating Rules
 
-- Do not start unless Terraform behavior is already known.
-- Preserve lifecycle shape first, then minimize.
-- If a synthetic case is too clean to reproduce the gap, widen only the dataflow you need. Do not copy large chunks of provider business logic.
-- If a bridge panic would crash the test process, recover it into an assertable test failure rather than abandoning the cross-test approach.
-- Keep the output focused on the parity boundary, not a full implementation theory.
-- Showing the parity gap cleanly in a cross-test is success, even if the final root cause is not finished.
-- If a focused cross-test still cannot preserve the real discriminator, stop. Record exactly what constraint prevented it and hand control back with that constraint instead of looping on cross-test shaping.
+- Showing the parity gap cleanly is success even when the final root cause remains unknown.
+- If a focused cross-test cannot preserve the real discriminator, stop and report the blocking constraint instead of widening indefinitely.
 
 ## Deliverable
 
 ```markdown
 ## Bridge Parity Investigation
 
-- **Current State:** <where the cross-test stands>
 - **Parity Gap:** <Pulumi behavior vs Terraform behavior>
-- **Confidence:** <>=90% / 60-89% / <60%>
-- **Settled Facts:** <what the cross-test proves>
-- **Unsettled Questions:** <the exact bridge mechanism still under review>
+- **Lifecycle Path:** <operations preserved by the test>
+- **Cross-Test Files:** <repository-relative paths>
+- **Execution Command:** <exact `go test` command>
+- **Execution Status:** <not run / completed / blocked / failed before the discriminator>
+- **Observed Result:** <parity gap reproduced / not reproduced / inconclusive / None if not reached>
+- **Narrowed Failing Boundary:** <first Pulumi RPC to Terraform translation divergence>
+- **Remaining Question:** <bridge mechanism still under review>
 - **Next Best Action:** <concrete next step>
-- **Lifecycle Path Preserved:** <operations the test reproduces>
-- **Cross-Test File:** `<path/to/bridge_test.go>`
-- **Execution Command:** `<go test command>`
-- **Narrowed Failing Boundary:** <Pulumi RPC to TF config/state translation point>
 - **Blocked Execution & Required Access:** <what could not run and what it needs, or None>
-- **Workaround Status:** <mitigation and validation level, or None>
 ```
+
+Do not claim a parity result from an unexecuted cross-test.

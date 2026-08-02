@@ -24,7 +24,7 @@ Read the relevant reference before finalizing a disposition, recommending labels
 | Reference | When to read | Purpose |
 | :--- | :--- | :--- |
 | [`references/provider-families.md`](references/provider-families.md) | During the initial resource probe | Subsystem boundaries per family. TF parity is conditional, not mandatory. |
-| [`references/confidence-and-artifacts.md`](references/confidence-and-artifacts.md) | When estimating confidence | Counterfactual discriminator test and the shared artifact spine. |
+| [`references/confidence-and-artifacts.md`](references/confidence-and-artifacts.md) | When estimating confidence | Counterfactual discriminator test and triage handoff fields. |
 | [`references/helper-switches.md`](references/helper-switches.md) | When selecting a specialist | Trigger criteria and boundary rules per specialist. |
 | [`references/disposition-gates.md`](references/disposition-gates.md) | Before recommending labels or a final disposition | Gate criteria for `awaiting-upstream`, `awaiting/bridge`, `duplicate`, `awaiting-feedback`, `local-fix`, `fixed by upgrade`. |
 | [`references/workaround-investigation.md`](references/workaround-investigation.md) | When the user needs a mitigation | Workaround search hierarchy and validation levels. |
@@ -44,17 +44,9 @@ Read the relevant reference before finalizing a disposition, recommending labels
 
 ## Specialist Routing
 
-Select a specialist explicitly rather than suggesting vague further investigation. Specialists marked *bridged* ship in the `pulumi-bridged-provider` package and are not installed in every repository — check availability before naming one, and fall back to a handoff describing the required artifact when the capability is missing. See [`references/helper-switches.md`](references/helper-switches.md).
+Read [`references/helper-switches.md`](references/helper-switches.md), then select the installed specialist that produces the required evidence. Bridged specialists are not installed in every repository; when one is unavailable, leave a handoff naming the required artifact instead.
 
-| Specialist | Package | When to select | Primary deliverable |
-| :--- | :--- | :--- | :--- |
-| `stage-pulumi-provider-repro` | core | Pulumi lifecycle (create/update/refresh/import/preview/diff) needs a maintainer-quality artifact, or the opposite Pulumi repro result would change routing | Staged Pulumi repro and command matrix |
-| `stage-terraform-provider-repro` | bridged | Terraform behavior is the decisive discriminator, or an upstream acceptance-style repro is needed | Staged HCL or TF acceptance test |
-| `bridge-parity-investigation` | bridged | Pulumi behavior established, Terraform behavior established, and the remaining gap is bridge-owned | Focused bridge cross-test |
-| `pulumi-rpc-lifecycle-investigation` | bridged | The next evidence is the actual RPC timeline: unexpected `Check`/`Diff`/`Read` ordering, refresh/import/replacement polarity, or stale inputs and state | RPC timeline and layer breakdown |
-| `investigate-converted-provider-docs` | bridged | Generated docs, converted examples, casing, or PCL output is wrong and ownership is unclear across schema generation, `tfgen`, the converter, the bridge, and language generators | Converter pipeline attribution |
-
-Workaround investigation is not a specialist skill. It is a mode this skill enters by reading [`references/workaround-investigation.md`](references/workaround-investigation.md).
+Workaround investigation is a mode, not a specialist skill. Enter it by reading [`references/workaround-investigation.md`](references/workaround-investigation.md).
 
 ## Search Hygiene
 
