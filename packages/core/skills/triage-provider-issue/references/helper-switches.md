@@ -1,14 +1,23 @@
 # Specialist Capability Switches
 
-Routing trigger criteria for transitioning from generic triage to specialized investigation skills.
+Trigger criteria for moving from generic triage to a specialist skill.
 
----
+Specialists in the `pulumi-bridged-provider` package are not installed in every repository. Confirm the capability exists before naming it. When the right specialist is missing, leave a handoff describing the exact artifact required instead of routing to an unavailable skill.
 
-| Specialist Skill | Activation Trigger Criteria | Key Boundary Rule |
-| :--- | :--- | :--- |
-| **`stage-pulumi-provider-repro`** | • Durable Pulumi repro artifact needed.<br>• Failure touches update, read, refresh, import, preview, diff, or `--refresh --run-program`. | Prefer repo-native examples over temporary scratch directories. |
-| **`stage-terraform-provider-repro`** | • Terraform behavior is sharpest discriminator.<br>• Upstream TF acceptance test needed. | **Bridged providers only.** Do not use as default for native or component providers. |
-| **`bridge-parity-investigation`** | • Pulumi behavior established AND Terraform behavior established.<br>• Behavior differs (Pulumi fails, TF succeeds). | Do **not** switch early while TF parity is still unknown. |
-| **`pulumi-rpc-lifecycle-investigation`** | • `PULUMI_DEBUG_GRPC=grpc.json` log available.<br>• Ownership depends on RPC payload ordering or value mutations across layers. | Use before bridge parity cross-tests when lifecycle path itself is ambiguous. |
-| **`investigate-converted-provider-docs`** | • Generated docs, converted examples, casing, or PCL output is wrong.<br>• Unclear ownership across `tfgen`, converter, bridge, or `hcl2` generators. | Compare source TF HCL, PCL, and target language output side-by-side. |
-| **`workaround-investigation`** | • Ownership boundary clear enough.<br>• User needs immediate mitigation before official fix. | State triage complete and explicitly announce workaround mode. |
+| Specialist | Package | Activation triggers | Boundary rule |
+| :--- | :--- | :--- | :--- |
+| `stage-pulumi-provider-repro` | core | A durable Pulumi repro artifact is the next evidence.<br>The issue turns on update, read, refresh, import, preview, diff, or `--refresh --run-program`.<br>The opposite Pulumi repro result would change routing. | Do not use as a substitute when Terraform behavior is the real discriminator. |
+| `stage-terraform-provider-repro` | bridged | Terraform behavior is the sharpest discriminator.<br>Parity with Terraform determines bridged-provider routing.<br>An upstream acceptance test or durable TF artifact is needed.<br>The opposite Terraform result would change routing. | Bridged providers only. Do not use TF parity as a default discriminator for native or component providers. |
+| `bridge-parity-investigation` | bridged | Pulumi behavior is established.<br>Terraform behavior is known and differs meaningfully.<br>The next useful step is capturing the bridge parity gap. | Do not switch early. If TF parity is unknown, use the Terraform repro specialist first. Do not call `awaiting/bridge` while the real open question is still whether Terraform behaves the same way. |
+| `pulumi-rpc-lifecycle-investigation` | bridged | The next best evidence is the actual RPC timeline.<br>gRPC logs exist or can be collected with `PULUMI_DEBUG_GRPC`.<br>Ownership depends on how values moved across engine, bridge, provider, and upstream TF.<br>Refresh, import, replacement, `Check`, `Diff`, `Read`, old inputs, state, or unknowns are central. | Use before a bridge parity cross-test when the lifecycle path itself is ambiguous. |
+| `investigate-converted-provider-docs` | bridged | A bridged provider has incorrect generated documentation or examples.<br>Source TF, generated PCL, and target-language output must be compared.<br>Ownership may lie in schema generation, `tfgen`, the converter, the bridge, or a core language generator. | Do not assign ownership from final SDK docs alone. |
+
+## Entering Workaround Investigation
+
+Workaround investigation is a mode, not a specialist skill. Read [`workaround-investigation.md`](workaround-investigation.md) when:
+
+- the ownership boundary is clear enough for practical purposes
+- the user still needs a mitigation
+- another attribution pass is less valuable than workaround validation
+
+State that triage is complete and that the session is entering workaround mode.

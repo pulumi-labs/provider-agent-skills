@@ -1,23 +1,35 @@
 # Cross-Test Playbook
 
-Playbook for constructing targeted bridge cross-tests to isolate Pulumi vs. Terraform parity gaps.
+Constructing targeted bridge cross-tests that isolate a Pulumi-vs-Terraform parity gap.
 
----
+## Entry Gate
 
-## Entry Gate Requirements
+Run a bridge cross-test only when all three hold:
 
-Execute a bridge cross-test **only** when:
-1. Pulumi behavior is established (bug reproduced).
-2. Terraform behavior is established (TF path succeeds).
-3. Parity mismatch matters for routing or root-cause work.
+1. Pulumi behavior is established (the bug reproduces).
+2. Terraform behavior is established (the TF path succeeds).
+3. The mismatch matters for routing or root-cause work.
 
----
+If any is missing, go back to repro staging first.
 
-## Cross-Test Construction Matrix
+## Construction
 
-| Objective | Execution Guideline | Anti-Pattern (AVOID) |
+| Objective | Do | Avoid |
 | :--- | :--- | :--- |
-| **Preserve Lifecycle Transition** | Recreate exact multi-step flow (`update` $\rightarrow$ `read`, `refresh`, `import`). | Collapsing multi-step flow into a simple `create` test. |
-| **Dataflow Integrity** | Preserve raw-state and readback schema shapes. | Copying wholesale provider business logic into synthetic test. |
-| **Panic Recovery** | Recover bridge panics into assertable failures (`assert.Panics`). | Allowing bridge crashes to fail the test process. |
-| **Focused Assertion** | Assert specific translation failure point. | Relying on broad non-specific test assertions. |
+| Preserve the lifecycle transition | Recreate the exact multi-step flow that triggers the mismatch (`update` then `read`, `refresh`, `import`). | Collapsing a multi-step flow into a simple `create` test. |
+| Preserve dataflow integrity | Keep the smallest schema and raw-state/readback shape that keeps the mismatch alive. | Copying the real provider implementation wholesale into a synthetic test. |
+| Recover panics | Recover bridge panics into assertable failures. | Letting a bridge crash take down the test process. |
+| Assert narrowly | Assert the specific translation failure point, and the exact user-visible divergence. | Broad, non-specific assertions or large synthetic harnesses. |
+
+Add minimal instrumentation around the failing boundary. Prefer one precise cross-test over a large synthetic harness.
+
+## Diagnostic Questions
+
+- Which lifecycle stage is the first point of divergence?
+- Is the problem in request construction, state translation, or output projection?
+- Does the synthetic test preserve the same raw-state or readback shape that matters in the real issue?
+
+## Avoid
+
+- Falling back to non-cross-test harnesses once parity is established.
+- Claiming the final root cause before the test actually isolates it.

@@ -1,22 +1,17 @@
 # Terraform Repro Shape
 
-Reference rules for staging durable, minimal Terraform-side repro artifacts.
-
----
-
-## Repro Principles Matrix
+Keeping Terraform repro work honest and useful for routing.
 
 | Category | Guideline |
 | :--- | :--- |
-| **PRESERVE** | Discriminator question, exact semantic flags (`-refresh=false`, import, read-after-update), HCL config. |
-| **PREFER** | Upstream provider acceptance tests (`TestAcc...`) or repo-native TF test configs over temp directories. |
-| **AVOID** | Loose temp-dir configs when upstream acceptance tests are needed; assuming TF mismatch without testing. |
+| Preserve | The exact upstream question, the exact lifecycle or flag variant being tested (`-refresh=false`, import, read-after-update), and the smallest durable config or acceptance test that still answers it. |
+| Prefer | Upstream acceptance tests (`TestAcc...`), repo-native Terraform repro artifacts, and narrow command matrices tied to explicit outcomes. |
+| Avoid | Presenting a convenience config as equivalent to the real discriminator, vague "Terraform works" claims that do not state what was exercised, and changing more than one semantic variable at a time. |
 
----
+## If Execution Is Blocked
 
-## Blocked Execution Fallback
+Stage the HCL or Go files anyway and report:
 
-If credentials/environment block execution, stage the HCL/Go files anyway and report:
-1. Exact command to run (`terraform apply` or `go test -run TestAcc...`).
-2. Required cloud credentials or env variables.
-3. Discriminator outcome being verified.
+1. The exact command to run (`terraform apply` or `go test -run TestAcc...`).
+2. The required cloud credentials, approvals, or environment variables.
+3. What result would change routing.

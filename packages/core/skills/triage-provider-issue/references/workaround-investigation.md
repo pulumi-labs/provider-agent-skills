@@ -1,38 +1,49 @@
 # Workaround Investigation
 
-Protocol for finding, validating, and reporting temporary mitigations when ownership boundary is clear but official fix is pending.
+Finding, validating, and reporting a temporary mitigation once the ownership boundary is clear enough for practical purposes and the user still needs a path forward.
 
----
+Stay in the workaround lane. Reopen broad triage only when workaround evidence contradicts the current understanding.
 
-## Search Hierarchy (Narrowest to Broadest)
+## Workflow
 
-1. **Config / Usage Change:** Resource input property adjustment or explicit program workaround.
-2. **Lifecycle Option / CLI Flag:** Invocation options (e.g. `--refresh=false`, `ignoreChanges`, `replaceOnChanges`).
-3. **Narrow Normalization Guard:** Local state/input override.
-4. **Alternate Resource Flow:** Alternative Pulumi component or SDK construct.
-5. **Upstream / Bridge Patch:** Upstream provider or bridge override.
+1. Restate the exact behavior the workaround must avoid, suppress, normalize, or redirect.
+2. Search from the narrowest surface to the broadest (see hierarchy below).
+3. Compare serious candidates by practicality, user impact, and risk rather than by which owning layer appears conceptually cleaner.
+4. Validate the strongest candidate when safe and possible.
+5. If validation requires credentials or a long-running environment, stage the artifact and state the exact remaining check.
 
----
+## Search Hierarchy
 
-## Validation Level Matrix
-
-| Validation Level | Definition | Reporting Rule |
+| Order | Surface | Examples |
 | :--- | :--- | :--- |
-| **Idea Only** | Conceptual workaround; unverified locally | **Do not** present as verified. |
-| **Locally Staged** | Workaround code written in test file | Staged in local repro. |
-| **Locally Validated** | Executed cleanly in local test harness | Confirmed locally. |
-| **Real Path Validated** | Verified against real cloud/provider failure path | Verified end-to-end workaround. |
+| 1 | Configuration or usage change | Resource input property adjustment, explicit program-level workaround |
+| 2 | Lifecycle option or command flag | `--refresh=false`, `ignoreChanges`, `replaceOnChanges` |
+| 3 | Narrow normalization or behavioral guard | Local state or input override |
+| 4 | Alternate resource flow | Different Pulumi component, resource, or SDK construct |
+| 5 | Broader downstream or upstream patch | Upstream provider or bridge override |
 
----
+## Validation Levels
 
-## Workaround Deliverable Template
+Label each candidate accurately. Do not present a plausible idea as a verified workaround.
+
+| Level | Meaning |
+| :--- | :--- |
+| `idea only` | Conceptual; not exercised anywhere. |
+| `locally staged` | Written into a repro or test file, not run. |
+| `locally validated` | Executed cleanly in a local test harness. |
+| `validated in the real failing path` | Verified against the real cloud or provider failure path. |
+
+## Deliverable
 
 ```markdown
 ## Workaround Summary
 
-- **Target Behavior Avoided:** <Exact bug/failure being suppressed>
-- **Best Candidate:** <Description of recommended mitigation>
-- **Validation Level:** <Idea Only / Locally Staged / Locally Validated / Real Path Validated>
-- **User Impact & Tradeoffs:** <Limitations introduced by workaround>
-- **Next Validation Step:** <How user or maintainer can verify>
+- **Failure Boundary:** <exact behavior being avoided or suppressed>
+- **Candidates Considered:** <surfaces searched and why each was kept or dropped>
+- **Best Candidate:** <recommended mitigation and why it wins>
+- **Validation Level:** <idea only / locally staged / locally validated / validated in the real failing path>
+- **User Impact & Tradeoffs:** <limitations the workaround introduces>
+- **Remaining Risk Or Uncertainty:** <what could still bite the user>
+- **Next Validation Step:** <how the user or maintainer confirms it>
+- **Blocked Execution & Required Access:** <what could not run and what it needs, or None>
 ```

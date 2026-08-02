@@ -1,23 +1,35 @@
 # Disposition Gates
 
-Strict gate criteria required before making a strong routing disposition or closing issue claim.
+Gate criteria required before making a strong routing or duplicate claim.
 
----
+## Gate Matrix
 
-## Disposition Gate Matrix
-
-| Label / Disposition | Required Criteria (MUST be True) | Negative Criteria (DO NOT Use If...) |
+| Disposition | Use when at least one is true | Do not use when |
 | :--- | :--- | :--- |
-| **`awaiting-upstream`** | • Matching upstream issue/PR exists for same failure mode & action, **OR**<br>• Terraform reproduces failure strongly. | • Issue is only in same general area.<br>• Upstream issue is merely suggestive.<br>• TF parity is still unknown. |
-| **`awaiting/bridge`** | • Matching bridge issue exists, **OR**<br>• Pulumi & TF behavior established, gap is bridge-owned. | • Bridge is only a plausible theory.<br>• TF parity is still unknown.<br>• Bridge repro artifact has not been staged. |
-| **`duplicate`** | • Covers **same** user-facing failure mode, **AND**<br>• Requires **same** next maintainer action. | • Issue only touches same subsystem or general area.<br>*(Label as `same-family` or `umbrella issue` instead)*. |
-| **`awaiting-feedback`** | • Explanation is outside provider code (env/version mismatch).<br>• Repro depends on missing reporter stack details. | • Issue is simply annoying or hard to reproduce.<br>*(Stage maintainer repro instead)*. |
-| **`local-fix`** | • Repo-local evidence settles ownership boundary.<br>• Opposite upstream result would **not** overturn routing. | • Ownership boundary is still unconfirmed. |
-| **`fixed by upgrade`** | • Issue explained by fix/feature landed in later release. | • Open bug remains in `HEAD`.<br>*(Must cite exact version boundary)*. |
+| `awaiting-upstream` | An upstream issue or fix matches the same user-facing failure mode and maintainer next action.<br>Terraform reproduces strongly enough that routing would not change if Pulumi-specific details were refined later. | The issue is only in the same general area as an upstream issue.<br>The upstream issue is merely suggestive.<br>TF parity is unknown and would change the recommendation. |
+| `awaiting/bridge` | An existing bridge issue matches the same failure mode.<br>Pulumi and Terraform behavior are both established and the remaining gap is bridge-owned. | The bridge is only a plausible layer.<br>TF parity is still unknown.<br>The first bridge repro artifact has not been staged yet. |
+| `duplicate` | **Both:** the existing issue covers the same user-facing failure mode, **and** the next maintainer action is the same. | The issue only touches the same subsystem or root area. Say `same-family`, `possible umbrella/root issue`, or `historical background` instead. |
+| `awaiting-feedback` | The strongest explanation is outside the provider's current bug surface (version resolution, environment mismatch).<br>The repro depends on missing stack or state details.<br>Current `HEAD` does not reproduce and the missing discriminator lives with the reporter. | The issue is merely annoying or hard to reproduce. If maintainer repro is the sharpest next step, stage the repro artifact instead. |
+| `local-fix` | Repo-local evidence settles the ownership boundary well enough that the next maintainer action happens in this repo. | The ownership boundary is still unconfirmed, or the opposite upstream/parity result would overturn the routing. |
+| `fixed by upgrade` | The issue is best explained by a capability or fix that already landed in a later released version. | An open bug remains in `HEAD`. |
 
----
+`local-fix` does not require certainty about the exact final patch. It requires that the opposite upstream or parity result would not overturn the routing recommendation.
 
-## Hypothesis Discipline Rules
+A `fixed by upgrade` report must still state the exact version boundary, why the reported version explains the report, and why this is not an open current bug in `HEAD`.
 
-- **Label Unproven Claims Plainly:** Use explicit labels (*"likely but unconfirmed"*, *"related upstream fix, applicability unverified"*).
-- **No False Decisiveness:** Never present a plausible static code mechanism as if the issue text or repro already proved it.
+Do not collapse "same general area" into "duplicate."
+
+## Hypothesis Discipline
+
+If the best explanation is still a leading theory, say so.
+
+Good:
+
+- "likely but unconfirmed root cause"
+- "related upstream fix, exact applicability unverified"
+- "same family as `#1234`, not yet justified as duplicate"
+
+Bad:
+
+- presenting a plausible static mechanism as if the issue text or repro already proved it
+- naming a strong routing label and then quietly adding caveats later

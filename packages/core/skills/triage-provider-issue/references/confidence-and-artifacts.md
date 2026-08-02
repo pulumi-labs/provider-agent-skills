@@ -1,45 +1,49 @@
-# Confidence & Artifact Rules
+# Confidence And Artifact Rules
 
-Grounded rules for confidence estimation, counterfactual checks, and triage artifact structures.
-
----
+Confidence estimation, the counterfactual check, and the shared artifact spine every skill in this family leaves behind.
 
 ## Confidence Thresholds
 
-| Confidence Level | Strategy & Posture |
+| Level | Posture |
 | :--- | :--- |
-| **$\ge$ 90%** | Provisional disposition is supported by evidence. |
-| **60% – 89%** | Focus on: *"What exact action gets us to certainty?"* |
-| **$<$ 60%** | Avoid leading hypotheses. Focus purely on evidence acquisition. |
+| `>= 90%` | A provisional disposition is useful and supported by evidence. |
+| `60-89%` | Answer "what exact action gets us to certainty?" rather than naming a disposition. |
+| `< 60%` | Do not name a leading hypothesis just to sound decisive. Acquire evidence. |
 
----
+Do not let a detailed issue report or a clever static explanation inflate confidence.
 
 ## Counterfactual Discriminator Check
 
-Before declaring a strong routing decision, perform this test:
+Run this test before routing strongly:
 
-> **Test:** *"Would the opposite repro or parity result change my recommendation?"*  
-> - If **YES** $\rightarrow$ Recommendation is **unsettled**. Staging a repro is mandatory before routing.
+> Would the opposite repro or parity result change my recommendation?
 
----
+If yes, the recommendation is not settled and the repro is not optional. A detailed static explanation does not bypass this check.
 
-## Standard Triage Artifact Structure
+## Shared Artifact Spine
 
-Every triage pass must leave behind this compact structure:
+Every pass in this skill family leaves behind these fields. Individual skills add their own artifact-specific fields on top; none of them drop a spine field.
 
-```markdown
-1. Current State
-2. Confidence Level (>=90% / 60-89% / <60%)
-3. Settled Evidence
-4. Unsettled Questions
-5. Next Best Action
-6. Prepared Artifacts
-7. Blocked Execution & Required Access
-8. Workaround Status
-9. Related Issues (Duplicate vs Same-Family vs Background)
-```
+| Field | Contents |
+| :--- | :--- |
+| Current state | Where the investigation stands in one or two lines. |
+| Confidence | `>=90%` / `60-89%` / `<60%`. |
+| Settled facts | What is proven by evidence. |
+| Unsettled questions | What remains unconfirmed, stated as a question. |
+| Next best action | One concrete step, not "continue investigating". |
+| Artifacts prepared | Staged repros, tests, or logs, with repository-relative paths. |
+| Blocked execution and required access | What could not run and exactly what it needs. |
+| Workaround status | Mitigation and its validation level, or None. |
+| Related issues | Duplicate vs same-family vs background, with the reason. |
 
-### Mechanism Evidence Labels
+Keep each field short and evidence-backed.
+
+## Mechanism Evidence Labels
+
+Label an unproven mechanism explicitly:
+
 - `proven by evidence`
 - `likely but unconfirmed`
 - `related but applicability unverified`
+
+Do not use a stronger label later in the report than the evidence justifies.
