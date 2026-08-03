@@ -65,14 +65,12 @@ Read `references/disposition-gates.md` before finalizing a strong routing or dup
 4. Identify the likely implementation boundary involved.
 5. Gather only enough evidence to choose the next best action.
 6. Estimate confidence and decide whether routing is settled.
-7. If routing is not settled, select the installed specialist skill that most directly reduces uncertainty.
+7. If routing is not settled, select the installed specialist skill that most directly reduces uncertainty using `references/helper-switches.md`.
 8. If routing is settled but the user still needs a practical path forward, enter workaround investigation using `references/workaround-investigation.md`.
 
 By default, stop after the triage artifact. Do not slide into implementation, PR work, or broad project planning unless the user explicitly changes phase or a selected specialist skill exists to stage the required evidence artifact.
 
 When continuing past triage, state that triage is complete and name the new phase.
-
-For a bridged-provider issue involving generated docs, converted Terraform examples, or code-sample casing, select `investigate-converted-provider-docs` when that specialist is installed.
 
 The initial repository probe should establish:
 
@@ -81,53 +79,9 @@ The initial repository probe should establish:
 - whether upstream source is a submodule, vendored module, generated input, or absent
 - which likely roots for provider code, examples, and tests actually exist
 
-If the next best action belongs to another repository, continue there only when the current environment can preserve correct repository and artifact ownership. Otherwise leave the exact unresolved question, settled evidence, and required artifact as a handoff.
-
-Read before finalizing:
-
-- `references/confidence-and-artifacts.md`
-- `references/provider-families.md`
-- `references/disposition-gates.md`
-- `references/helper-switches.md`
-- `references/workaround-investigation.md` when entering workaround work
-
-## Specialist Capabilities
-
-Select a specialist explicitly rather than suggesting vague further investigation. Some specialists are supplied by provider-family packages and may not be installed in every repository.
-
-### `stage-pulumi-provider-repro`
-
-Use when the sharpest next action is a durable Pulumi-side repro.
-
-Typical triggers:
-
-- a user repro exists but no maintainer-quality artifact does
-- update, refresh, import, preview, diff, or a multi-step lifecycle must be verified
-- the opposite Pulumi repro result would change routing
-
-### `stage-terraform-provider-repro`
-
-Use when installed and when Terraform behavior is the decisive discriminator or an upstream acceptance-style artifact is needed. Do not use this as a default discriminator for native or component providers.
-
-### `bridge-parity-investigation`
-
-Use when installed, Pulumi behavior is established, Terraform behavior is established, and the meaningful remaining gap belongs at the bridge boundary. Do not use it while parity is unknown.
-
-### `pulumi-rpc-lifecycle-investigation`
-
-Use when installed and the next evidence is the actual Pulumi RPC timeline: unexpected `Check`, `Diff`, or `Read` ordering; refresh/import/replacement polarity; stale inputs or state; or unclear movement between engine, bridge, provider, and upstream layers.
-
-### `investigate-converted-provider-docs`
-
-Use when installed and a bridged provider has incorrect generated examples, casing, PCL, or target-language output, and ownership remains unclear between schema generation, `tfgen`, the Terraform converter, the bridge, and core language generators.
-
-### Workaround investigation
-
-When ownership is clear enough but the user still needs a mitigation, read `references/workaround-investigation.md` and state that the session is entering workaround mode.
-
 ## Default Output
 
-Always leave a compact artifact another pass can continue from:
+Always leave a compact artifact another pass can continue from. Present it before any later implementation phase, even when the answer appears obvious or already fixed by an upgrade:
 
 - current state
 - confidence
@@ -149,5 +103,3 @@ Label unproven mechanisms plainly:
 Use a few high-signal repository-relative citations rather than dense link spam.
 
 If selecting a specialist, restate the unresolved question in one line. Do not treat “continue investigating” as a sufficient outcome.
-
-Always present the triage artifact before any later implementation phase. Do not mutate GitHub directly; a hosting integration owns any publication or issue-state changes. Even when the answer appears obvious or already fixed by an upgrade, report first.
