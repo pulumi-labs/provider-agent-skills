@@ -1,3 +1,4 @@
+adopt-provider-agent-skills
 bridge-parity-investigation
 investigate-converted-provider-docs
 pulumi-rpc-lifecycle-investigation

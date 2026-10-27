@@ -1,2 +1,3 @@
+adopt-provider-agent-skills
 stage-pulumi-provider-repro
 triage-provider-issue
