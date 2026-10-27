@@ -6,12 +6,22 @@ Shared Agent Skills for investigating and maintaining Pulumi providers. The repo
 
 | Package | Intended consumers | Skills |
 | --- | --- | --- |
-| [`core`](packages/core) | All Pulumi provider repositories | `triage-provider-issue`, `stage-pulumi-provider-repro` |
+| [`core`](packages/core) | All Pulumi provider repositories | `adopt-provider-agent-skills`, `triage-provider-issue`, `stage-pulumi-provider-repro` |
 | [`bridged`](packages/bridged) | Bridged provider repositories | Core plus bridge investigation skills and the upstream `pulumi-upgrade-provider` and `upstream-patches` maintenance skills |
 
 Native and component packages should be added when there is justified family-specific content to ship. Until then, those repositories can install `core`.
 
 The bridged package also depends on the `package-maintenance` skill bundle from [`pulumi/agent-skills`](https://github.com/pulumi/agent-skills/tree/main/package-maintenance) and tracks its `main` branch. APM records the resolved commit in the consumer's lockfile; run `apm update` to advance an existing consumer to a newer upstream commit.
+
+## Opportunistic Adoption
+
+Give an agent `packages/core/skills/adopt-provider-agent-skills/SKILL.md` from an
+external skill installation when delegating work in a provider that has not yet
+adopted APM. The skill skips repositories with `apm.yml`, removes the three
+listed legacy skills, preserves other local skills, and opens a separate adoption
+PR. Canned setup and agent-guidance snippets live inside the skill's `assets/`.
+A local adoption trial can stop at a reviewable diff without committing or
+publishing. The target provider consumes a released package, not this checkout.
 
 ## Install With APM
 
